@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Billing</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+        .section h2 {
+            margin-top: 0;
+            color: #555;
+        }
+        .file-input-group {
+            margin-bottom: 15px;
+        }
+        .file-input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .file-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #007AFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #0056CC;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .file-path {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f8f8f8;
+            font-size: 14px;
+        }
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            resize: vertical;
+        }
+        .process-section {
+            text-align: center;
+            background-color: #f0f8ff;
+        }
+        .process-btn {
+            background-color: #28a745;
+            font-size: 16px;
+            padding: 15px 30px;
+        }
+        .process-btn:hover {
+            background-color: #218838;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            display: none;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .gmail-setup {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .gmail-setup h3 {
+            margin-top: 0;
+            color: #856404;
+        }
+        .gmail-setup p {
+            color: #856404;
+            margin-bottom: 8px;
+        }
+        .progress-label {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .progress-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .progress-bar {
+            flex: 1;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #dee2e6;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007AFF 0%, #34C759 100%);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            font-weight: 500;
+            color: #333;
+            min-width: 35px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Patient Billing</h1>
+        
+        <div class="section">
+            <h2>📁 File Selection</h2>
+            
+            <div class="file-input-group">
+                <label>Billing CSV File:</label>
+                <div class="file-selector">
+                    <input type="text" class="file-path" id="billing-path" readonly placeholder="No file selected">
+                    <button id="select-billing">Select CSV File</button>
+                </div>
+                <small style="color: #666; margin-top: 5px; display: block;">Upload a CSV file with billing data (First Name, Last Name, Diagnosis Code, Date, CPT, Charge, Due)</small>
+            </div>
+            
+            <div class="file-input-group">
+                <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <input type="checkbox" id="email-toggle" style="margin: 0;">
+                    <span>Create Email Drafts</span>
+                </label>
+                <small style="color: #666; margin-bottom: 15px; display: block;">Toggle this on to create email drafts in addition to PDF statements/superbills</small>
+            </div>
+            
+            <div class="file-input-group" id="email-section" style="display: none;">
+                <label>Email CSV File:</label>
+                <div class="file-selector">
+                    <input type="text" class="file-path" id="email-path" readonly placeholder="No file selected">
+                    <button id="select-email">Select CSV File</button>
+                </div>
+                <small style="color: #666; margin-top: 5px; display: block;">Upload a CSV file with email data (First Name, Last Name, Email)</small>
+            </div>
+            
+            <div class="file-input-group">
+                <label>Output Directory:</label>
+                <div class="file-selector">
+                    <input type="text" class="file-path" id="output-path" readonly placeholder="No directory selected">
+                    <button id="select-output">Select Directory</button>
+                </div>
+                <small style="color: #666; margin-top: 5px; display: block;">Where to store txt and pdf files</small>
+            </div>
+        </div>
+
+        <div class="section" id="email-template-section" style="display: none;">
+            <h2>✉️ Email Template</h2>
+            
+            <div class="file-input-group">
+                <label for="email-subject">Email Subject:</label>
+                <input type="text" id="email-subject" class="file-path" placeholder="Billing Statement" value="Billing Statement" style="background-color: white;">
+            </div>
+            
+            <label for="email-template">Email message template (use ${firstName} for patient's first name):</label>
+            <textarea id="email-template" placeholder="Dear ${firstName},
+
+Your billing statement is attached. Please review and contact us with any questions.
+
+Best regards,
+Medical Office"></textarea>
+            
+            <div class="gmail-setup">
+                <h3>Gmail Setup Required</h3>
+                <p>To create email drafts, you'll need to:</p>
+                <p>1. Enable Gmail API in Google Cloud Console</p>
+                <p>2. Create OAuth2 credentials</p>
+                <p>3. Download credentials.json to the app directory</p>
+                <p>4. Authorize the app on first use</p>
+            </div>
+        </div>
+
+        <div class="section process-section">
+            <h2>🚀 Process Files</h2>
+            <button class="process-btn" id="process-btn">Generate Statements & Email Drafts</button>
+            
+            <div id="progress-container" style="display: none; margin-top: 20px;">
+                <div class="progress-label" id="progress-label">Preparing...</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <div class="progress-text" id="progress-text">0%</div>
+                </div>
+            </div>
+            
+            <div class="status" id="status"></div>
+        </div>
+    </div>
+
+    <script>
+        let billingFilePath = '';
+        let emailFilePath = '';
+        let outputDirectory = '';
+        let billingType = 'statement';
+        let emailToggleEnabled = false;
+        let patientsWithoutEmails = [];
+
+        // Load saved email template, subject, and check Gmail setup on startup
+        Promise.all([
+            window.electronAPI.loadEmailTemplate(),
+            window.electronAPI.loadEmailSubject(),
+            window.electronAPI.checkGmailSetup()
+        ]).then(([templateResult, subjectResult, setupResult]) => {
+            if (templateResult.success && templateResult.template) {
+                document.getElementById('email-template').value = templateResult.template;
+            }
+            if (subjectResult.success && subjectResult.subject) {
+                document.getElementById('email-subject').value = subjectResult.subject;
+            }
+            updateGmailStatus(setupResult);
+            updateProcessButton();
+        });
+
+        function updateGmailStatus(setupStatus) {
+            const gmailSetup = document.querySelector('.gmail-setup');
+            const h3 = gmailSetup.querySelector('h3');
+            
+            if (setupStatus.isSetup) {
+                gmailSetup.style.backgroundColor = '#d4edda';
+                gmailSetup.style.borderColor = '#c3e6cb';
+                h3.style.color = '#155724';
+                h3.textContent = 'Gmail Setup Complete ✓';
+                
+                const statusText = setupStatus.hasToken 
+                    ? 'Gmail is ready to create email drafts.'
+                    : 'Gmail credentials found. Will authorize on first use.';
+                    
+                gmailSetup.innerHTML = `<h3>Gmail Setup Complete ✓</h3><p style="color: #155724; margin-bottom: 0;">${statusText}</p>`;
+            } else {
+                h3.textContent = 'Gmail Setup Required';
+            }
+        }
+
+        // Email toggle handler
+        document.getElementById('email-toggle').addEventListener('change', (e) => {
+            emailToggleEnabled = e.target.checked;
+            const emailSection = document.getElementById('email-section');
+            const emailTemplateSection = document.getElementById('email-template-section');
+            
+            if (emailToggleEnabled) {
+                emailSection.style.display = 'block';
+                emailTemplateSection.style.display = 'block';
+            } else {
+                emailSection.style.display = 'none';
+                emailTemplateSection.style.display = 'none';
+                emailFilePath = '';
+                document.getElementById('email-path').value = '';
+            }
+            
+            updateProcessButton();
+        });
+
+        // File selection handlers
+        document.getElementById('select-billing').addEventListener('click', async () => {
+            const result = await window.electronAPI.selectBillingFile();
+            if (!result.canceled && result.filePaths.length > 0) {
+                billingFilePath = result.filePaths[0];
+                document.getElementById('billing-path').value = billingFilePath;
+                
+                try {
+                    const analysisResult = await window.electronAPI.analyzeBillingCSV(billingFilePath);
+                    billingType = analysisResult.type;
+                    updateProcessButton();
+                } catch (error) {
+                    console.error('Error analyzing CSV:', error);
+                    updateProcessButton();
+                }
+            }
+        });
+
+        document.getElementById('select-email').addEventListener('click', async () => {
+            const result = await window.electronAPI.selectEmailFile();
+            if (!result.canceled && result.filePaths.length > 0) {
+                emailFilePath = result.filePaths[0];
+                document.getElementById('email-path').value = emailFilePath;
+                updateProcessButton();
+            }
+        });
+
+        document.getElementById('select-output').addEventListener('click', async () => {
+            const result = await window.electronAPI.selectOutputDirectory();
+            if (!result.canceled && result.filePaths.length > 0) {
+                outputDirectory = result.filePaths[0];
+                document.getElementById('output-path').value = outputDirectory;
+                updateProcessButton();
+            }
+        });
+
+        function updateProcessButton() {
+            const processBtn = document.getElementById('process-btn');
+            const hasRequiredFiles = billingFilePath && outputDirectory;
+            const hasEmailFilesIfNeeded = !emailToggleEnabled || emailFilePath;
+            
+            processBtn.disabled = !hasRequiredFiles || !hasEmailFilesIfNeeded;
+            
+            if (billingType === 'superbill') {
+                processBtn.textContent = emailToggleEnabled ? 'Generate SuperBills & Email Drafts' : 'Generate SuperBills';
+            } else {
+                processBtn.textContent = emailToggleEnabled ? 'Generate Statements & Email Drafts' : 'Generate Statements';
+            }
+        }
+
+        // Process button
+        document.getElementById('process-btn').addEventListener('click', async () => {
+            if (!billingFilePath || !outputDirectory) {
+                showStatus('Please select billing file and output directory', 'error');
+                return;
+            }
+
+            await saveEmailSettings();
+
+            try {
+                document.getElementById('process-btn').disabled = true;
+                document.getElementById('progress-container').style.display = 'block';
+                hideStatus();
+
+                const result = await window.electronAPI.processFiles({
+                    billingFilePath: billingFilePath,
+                    emailFilePath: emailFilePath,
+                    outputDirectory: outputDirectory,
+                    emailTemplate: document.getElementById('email-template').value,
+                    emailSubject: document.getElementById('email-subject').value,
+                    createEmailDrafts: emailToggleEnabled
+                });
+
+                if (result.success) {
+                    showStatus(result.message, 'success');
+                } else {
+                    showStatus(result.message, 'error');
+                }
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            } finally {
+                document.getElementById('process-btn').disabled = false;
+                document.getElementById('progress-container').style.display = 'none';
+            }
+        });
+
+        // Save email settings
+        async function saveEmailSettings() {
+            try {
+                const template = document.getElementById('email-template').value;
+                const subject = document.getElementById('email-subject').value;
+                
+                await window.electronAPI.saveEmailTemplate(template);
+                await window.electronAPI.saveEmailSubject(subject);
+            } catch (error) {
+                console.error('Error saving email settings:', error);
+            }
+        }
+
+        // Progress updates
+        window.electronAPI.onProgressUpdate((data) => {
+            document.getElementById('progress-fill').style.width = `${data.percentage}%`;
+            document.getElementById('progress-text').textContent = `${data.percentage}%`;
+            document.getElementById('progress-label').textContent = data.label;
+        });
+
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+            statusEl.style.display = 'block';
+        }
+
+        function hideStatus() {
+            document.getElementById('status').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

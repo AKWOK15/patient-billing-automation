@@ -1,0 +1,73 @@
+{
+  "name": "patient-billing-automation",
+  "version": "1.0.0",
+  "description": "Patient billing automation app",
+  "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AKWOK15/patient-billing-automation.git"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "dist": "electron-builder --publish=never",
+    "pack": "electron-builder --dir"
+  },
+  "keywords": [
+    "billing",
+    "healthcare",
+    "automation",
+    "electron",
+    "csv"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/AKWOK15/patient-billing-automation/issues"
+  },
+  "homepage": "https://github.com/AKWOK15/patient-billing-automation#readme",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.0.0"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "csv-parser": "^3.0.0",
+    "googleapis": "^159.0.0",
+    "puppeteer": "^24.17.1",
+    "websocket": "^1.0.35"
+  },
+  "build": {
+    "appId": "com.yourcompany.patient-billing-automation",
+    "productName": "Patient Billing",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer.js",
+      "index.html",
+      "src/**/*",
+      "template_extract/**/*",
+      "credentials.json",
+      "icon.icns",
+      "AppIcon.icns",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "icon": "icon.icns",
+      "category": "public.app-category.healthcare-fitness"
+    },
+    "win": {
+      "icon": "icon.ico"
+    },
+    "linux": {
+      "icon": "icon.png",
+      "category": "Office"
+    }
+  }
+}
